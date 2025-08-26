@@ -1,0 +1,146 @@
+{% extends 'coreapp.html' %}
+
+{% block title %}Dashboard - Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-800">
+                    <i class="fas fa-file-alt text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">Total Complaints</p>
+                    <p class="text-2xl font-semibold">{{ total_count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-800">
+                    <i class="fas fa-clock text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">Pending</p>
+                    <p class="text-2xl font-semibold">{{ pending_count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-800">
+                    <i class="fas fa-search text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">Investigating</p>
+                    <p class="text-2xl font-semibold">{{ investigating_count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-800">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">Resolved</p>
+                    <p class="text-2xl font-semibold">{{ resolved_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'coreapp:complaint_create' %}" class="bg-blue-800 text-white py-3 px-4 rounded-md text-center hover:bg-blue-700 transition">
+                <i class="fas fa-plus-circle mr-2"></i> Report New Crime
+            </a>
+            <a href="{% url 'coreapp:complaint_list' %}" class="bg-gray-700 text-white py-3 px-4 rounded-md text-center hover:bg-gray-600 transition">
+                <i class="fas fa-list mr-2"></i> View All Complaints
+            </a>
+            <a href="{% url 'account:profile' %}" class="bg-gray-500 text-white py-3 px-4 rounded-md text-center hover:bg-gray-400 transition">
+                <i class="fas fa-user-edit mr-2"></i> Update Profile
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Complaints -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">Recent Complaints</h2>
+            <a href="{% url 'coreapp:complaint_list' %}" class="text-blue-800 hover:text-blue-600 transition">
+                View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        {% if complaints %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ complaint.title }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ complaint.get_category_display }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if complaint.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif complaint.status == 'investigating' %}bg-purple-100 text-purple-800
+                                {% elif complaint.status == 'resolved' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ complaint.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{% url 'coreapp:complaint_detail' complaint.pk %}" class="text-blue-800 hover:text-blue-600 mr-3">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            {% if complaint.status == 'pending' %}
+                            <a href="{% url 'coreapp:complaint_update' complaint.pk %}" class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <div class="text-gray-400 mb-4">
+                <i class="fas fa-file-alt text-5xl"></i>
+            </div>
+            <p class="text-gray-500 mb-4">You haven't submitted any complaints yet.</p>
+            <a href="{% url 'coreapp:complaint_create' %}" class="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                Report a Crime
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'coreapp.html' %}
+
+{% block title %}Home - Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Hero Section -->
+    <div class="bg-blue-800 text-white rounded-lg shadow-xl overflow-hidden mb-10">
+        <div class="md:flex">
+            <div class="p-8 md:p-12 md:w-1/2">
+                <h1 class="text-4xl font-bold mb-4">Report Crimes Safely and Securely</h1>
+                <p class="text-blue-100 mb-6 text-lg">
+                    Our platform allows citizens to report crimes anonymously and track the progress of their cases.
+                    Help make your community safer by reporting suspicious activities.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                    <a href="{% url 'coreapp:complaint_create' %}" class="bg-white text-blue-800 px-6 py-3 rounded-md font-semibold hover:bg-blue-100 transition text-center">
+                        Report a Crime
+                    </a>
+                    <a href="{% url 'account:sign-up' %}" class="border border-white text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 transition text-center">
+                        Create Account
+                    </a>
+                </div>
+            </div>
+            <div class="md:w-1/2 bg-blue-700 flex items-center justify-center p-8">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt text-8xl mb-4 text-blue-200"></i>
+                    <div class="text-xl font-semibold text-blue-100">Protecting Communities Together</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-10">How It Works</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="text-blue-800 mb-4 text-center">
+                    <i class="fas fa-file-alt text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-center">1. Submit a Report</h3>
+                <p class="text-gray-600">
+                    Fill out our secure online form with details about the incident. You can attach evidence and provide location information.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="text-blue-800 mb-4 text-center">
+                    <i class="fas fa-search text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-center">2. Police Investigation</h3>
+                <p class="text-gray-600">
+                    Law enforcement reviews your report and begins an investigation. They may contact you for additional information.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="text-blue-800 mb-4 text-center">
+                    <i class="fas fa-chart-line text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-center">3. Track Progress</h3>
+                <p class="text-gray-600">
+                    Monitor the status of your report through your account dashboard. Receive updates as the investigation progresses.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="bg-gray-100 rounded-lg p-8 mb-16">
+        <h2 class="text-3xl font-bold text-center mb-10">Making a Difference</h2>
+        <div class="grid md:grid-cols-4 gap-6 text-center">
+            <div>
+                <div class="text-4xl font-bold text-blue-800 mb-2">500+</div>
+                <div class="text-gray-600">Reports Submitted</div>
+            </div>
+            <div>
+                <div class="text-4xl font-bold text-blue-800 mb-2">85%</div>
+                <div class="text-gray-600">Resolution Rate</div>
+            </div>
+            <div>
+                <div class="text-4xl font-bold text-blue-800 mb-2">24/7</div>
+                <div class="text-gray-600">Support Available</div>
+            </div>
+            <div>
+                <div class="text-4xl font-bold text-blue-800 mb-2">100%</div>
+                <div class="text-gray-600">Secure & Confidential</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-blue-900 text-white rounded-lg shadow-xl p-8 text-center mb-16">
+        <h2 class="text-3xl font-bold mb-4">Ready to Report an Incident?</h2>
+        <p class="text-blue-200 mb-6 max-w-2xl mx-auto">
+            Your information helps law enforcement keep our communities safe. All reports are confidential and secure.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{% url 'coreapp:complaint_create' %}" class="bg-white text-blue-900 px-6 py-3 rounded-md font-semibold hover:bg-blue-100 transition">
+                Report a Crime Now
+            </a>
+            <a href="#" class="border border-white text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-800 transition">
+                Learn More
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

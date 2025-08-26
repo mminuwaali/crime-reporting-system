@@ -1,0 +1,130 @@
+{% extends 'coreapp.html' %}
+
+{% block title %}My Complaints - Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">My Complaints</h1>
+        <a href="{% url 'coreapp:complaint_create' %}" class="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+            <i class="fas fa-plus-circle mr-1"></i> Report New Crime
+        </a>
+    </div>
+    
+    <!-- Filter -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <form method="get" class="flex flex-wrap items-center">
+            <div class="mr-4 mb-2">
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Status:</label>
+                <select id="status-filter" name="status" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" onchange="this.form.submit()">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Complaints</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="investigating" {% if status_filter == 'investigating' %}selected{% endif %}>Investigating</option>
+                    <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Complaints List -->
+    {% if complaints %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Submitted</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for complaint in complaints %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ complaint.title }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ complaint.get_category_display }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if complaint.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif complaint.status == 'investigating' %}bg-purple-100 text-purple-800
+                            {% elif complaint.status == 'resolved' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ complaint.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ complaint.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ complaint.updated_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'coreapp:complaint_detail' complaint.pk %}" class="text-blue-800 hover:text-blue-600 mr-3">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        {% if complaint.status == 'pending' %}
+                        <a href="{% url 'coreapp:complaint_update' complaint.pk %}" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="flex justify-center mt-6">
+        <nav class="inline-flex rounded-md shadow">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">First</span>
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Previous</span>
+                <i class="fas fa-angle-left"></i>
+            </a>
+            {% endif %}
+            
+            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Next</span>
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Last</span>
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <div class="text-gray-400 mb-4">
+            <i class="fas fa-file-alt text-5xl"></i>
+        </div>
+        <h2 class="text-xl font-semibold mb-2">No Complaints Found</h2>
+        <p class="text-gray-500 mb-6">You haven't submitted any complaints yet.</p>
+        <a href="{% url 'coreapp:complaint_create' %}" class="bg-blue-800 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition">
+            Report a Crime
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

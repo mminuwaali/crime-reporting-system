@@ -1,0 +1,286 @@
+{% extends 'coreapp.html' %}
+
+{% block title %}Complaint Details - Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <a href="{% url 'coreapp:complaint_list' %}" class="text-blue-800 hover:text-blue-600 transition">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Complaints
+            </a>
+            <h1 class="text-3xl font-bold mt-2">{{ complaint.title }}</h1>
+        </div>
+        <div>
+            {% if complaint.status == 'pending' %}
+            <a href="{% url 'coreapp:complaint_update' complaint.pk %}" class="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                <i class="fas fa-edit mr-1"></i> Edit Complaint
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Complaint Details -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Complaint Details</h2>
+                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
+                        {% if complaint.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif complaint.status == 'investigating' %}bg-purple-100 text-purple-800
+                        {% elif complaint.status == 'resolved' %}bg-green-100 text-green-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ complaint.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500">Category</p>
+                        <p>{{ complaint.get_category_display }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Location</p>
+                        <p>{{ complaint.location }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Date of Incident</p>
+                        <p>{{ complaint.date_of_incident|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Time of Incident</p>
+                        <p>{% if complaint.time_of_incident %}{{ complaint.time_of_incident|time:"g:i A" }}{% else %}Not specified{% endif %}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Date Submitted</p>
+                        <p>{{ complaint.created_at|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Last Updated</p>
+                        <p>{{ complaint.updated_at|date:"F d, Y" }}</p>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <p class="text-sm text-gray-500 mb-2">Description</p>
+                    <p class="whitespace-pre-line">{{ complaint.description }}</p>
+                </div>
+            </div>
+            
+            <!-- Evidence Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Evidence</h2>
+                
+                {% if complaint.evidence.all %}
+                <div class="space-y-4 mb-6">
+                    {% for evidence in complaint.evidence.all %}
+                    <div class="border border-gray-200 rounded-md p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">{{ evidence.description|default:"Unnamed Evidence" }}</p>
+                                <p class="text-sm text-gray-500">Uploaded on {{ evidence.uploaded_at|date:"F d, Y" }}</p>
+                            </div>
+                            <a href="{{ evidence.file.url }}" target="_blank" class="text-blue-800 hover:text-blue-600 transition">
+                                <i class="fas fa-download mr-1"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 mb-4">No evidence has been uploaded for this complaint.</p>
+                {% endif %}
+                
+                {% if complaint.status != 'closed' %}
+                <form method="post" action="{% url 'coreapp:evidence_create' complaint.pk %}" enctype="multipart/form-data" class="border-t border-gray-200 pt-4">
+                    {% csrf_token %}
+                    <h3 class="text-lg font-medium mb-3">Upload New Evidence</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="{{ evidence_form.file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                File <span class="text-red-500">*</span>
+                            </label>
+                            {{ evidence_form.file }}
+                            {% if evidence_form.file.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ evidence_form.file.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="{{ evidence_form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Description
+                            </label>
+                            {{ evidence_form.description }}
+                            {% if evidence_form.description.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ evidence_form.description.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                            <i class="fas fa-upload mr-1"></i> Upload Evidence
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+            
+            <!-- Communication Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Communication</h2>
+                
+                {% if complaint.responses.all %}
+                <div class="space-y-4 mb-6">
+                    {% for response in complaint.responses.all %}
+                    <div class="{% if response.is_from_police %}bg-blue-50 border-l-4 border-blue-500{% else %}bg-gray-50 border-l-4 border-gray-500{% endif %} p-4 rounded-md">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center">
+                                <div class="{% if response.is_from_police %}bg-blue-100 text-blue-800{% else %}bg-gray-200 text-gray-800{% endif %} rounded-full p-2 mr-3">
+                                    <i class="{% if response.is_from_police %}fas fa-shield-alt{% else %}fas fa-user{% endif %}"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">{% if response.is_from_police %}Police Department{% else %}You{% endif %}</p>
+                                    <p class="text-sm text-gray-500">{{ response.created_at|date:"F d, Y" }} at {{ response.created_at|time:"g:i A" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pl-10">
+                            <p class="whitespace-pre-line">{{ response.message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 mb-4">No communication has been recorded for this complaint yet.</p>
+                {% endif %}
+                
+                {% if complaint.status != 'closed' %}
+                <form method="post" action="{% url 'coreapp:response_create' complaint.pk %}" class="border-t border-gray-200 pt-4">
+                    {% csrf_token %}
+                    <h3 class="text-lg font-medium mb-3">Send a Message</h3>
+                    <div>
+                        <label for="{{ response_form.message.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Message <span class="text-red-500">*</span>
+                        </label>
+                        {{ response_form.message }}
+                        {% if response_form.message.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ response_form.message.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                            <i class="fas fa-paper-plane mr-1"></i> Send Message
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div>
+            <!-- Status Timeline -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Status Timeline</h2>
+                <div class="relative">
+                    <div class="absolute left-4 top-0 h-full w-0.5 bg-gray-200"></div>
+                    
+                    <div class="relative flex items-start mb-6">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-800 text-white z-10">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium">Submitted</h3>
+                            <p class="text-sm text-gray-500">{{ complaint.created_at|date:"F d, Y" }}</p>
+                            <p class="text-sm mt-1">Your complaint has been received.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex items-start mb-6">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full {% if complaint.status == 'pending' or complaint.status == 'investigating' or complaint.status == 'resolved' or complaint.status == 'closed' %}bg-blue-800 text-white{% else %}bg-gray-200 text-gray-400{% endif %} z-10">
+                            {% if complaint.status == 'pending' or complaint.status == 'investigating' or complaint.status == 'resolved' or complaint.status == 'closed' %}
+                            <i class="fas fa-check-circle"></i>
+                            {% else %}
+                            <i class="fas fa-clock"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium">Under Review</h3>
+                            <p class="text-sm text-gray-500">Pending</p>
+                            <p class="text-sm mt-1">Your complaint is being reviewed by our team.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex items-start mb-6">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full {% if complaint.status == 'investigating' or complaint.status == 'resolved' or complaint.status == 'closed' %}bg-blue-800 text-white{% else %}bg-gray-200 text-gray-400{% endif %} z-10">
+                            {% if complaint.status == 'investigating' or complaint.status == 'resolved' or complaint.status == 'closed' %}
+                            <i class="fas fa-check-circle"></i>
+                            {% else %}
+                            <i class="fas fa-search"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium">Investigation</h3>
+                            <p class="text-sm text-gray-500">{% if complaint.status == 'investigating' or complaint.status == 'resolved' or complaint.status == 'closed' %}In Progress{% else %}Pending{% endif %}</p>
+                            <p class="text-sm mt-1">Officers are investigating your complaint.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex items-start">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full {% if complaint.status == 'resolved' or complaint.status == 'closed' %}bg-blue-800 text-white{% else %}bg-gray-200 text-gray-400{% endif %} z-10">
+                            {% if complaint.status == 'resolved' or complaint.status == 'closed' %}
+                            <i class="fas fa-check-circle"></i>
+                            {% else %}
+                            <i class="fas fa-flag-checkered"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium">Resolution</h3>
+                            <p class="text-sm text-gray-500">{% if complaint.status == 'resolved' or complaint.status == 'closed' %}Completed{% else %}Pending{% endif %}</p>
+                            <p class="text-sm mt-1">Investigation completed and case resolved.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Need Help?</h2>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-medium">Emergency Contact</h3>
+                        <p class="text-sm text-gray-600">For emergencies, please call 911 immediately.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Support Hotline</h3>
+                        <p class="text-sm text-gray-600">(555) 123-4567</p>
+                        <p class="text-sm text-gray-600">Available 24/7</p>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Email Support</h3>
+                        <p class="text-sm text-gray-600">support@crimereport.org</p>
+                    </div>
+                    <div class="pt-2">
+                        <a href="#" class="text-blue-800 hover:text-blue-600 transition text-sm">
+                            <i class="fas fa-question-circle mr-1"></i> Frequently Asked Questions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add form styling
+        const inputs = document.querySelectorAll('input[type="text"], input[type="file"], textarea');
+        inputs.forEach(input => {
+            input.classList.add('w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring', 'focus:ring-blue-500', 'focus:ring-opacity-50');
+        });
+    });
+</script>
+{% endblock %}

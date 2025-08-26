@@ -1,0 +1,87 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% tailwind_css %}
+    <meta charset="UTF-8">
+    <title>
+        Crime Reporting System | {% block title %}{% endblock %}
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body class="antialiased text-slate-800 bg-gray-50">
+
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-white focus:px-3 focus:py-2 focus:rounded shadow">Skip to content</a>
+
+    <div class="min-h-screen flex flex-col">
+
+        <!-- Sticky Header -->
+        <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center gap-3">
+                        <img src="{% static 'logo.png' %}" alt="Logo"
+                            class="h-10 w-10 rounded-md object-cover shadow-sm"
+                            onerror="this.style.display='none'">
+                        <div>
+                            <a href="{% url 'coreapp:home' %}"
+                                class="text-lg font-semibold text-slate-900 hover:text-indigo-600">Crime Reporting
+                                System</a>
+                            <p class="text-xs text-slate-500">Report. Track. Resolve.</p>
+                        </div>
+                    </div>
+
+                    <nav aria-label="Primary" class="hidden md:flex items-center gap-4">
+                        <a href="{% url 'coreapp:home' %}" class="text-sm text-slate-700 hover:text-indigo-600">Home</a>
+                        <a href="{% url 'coreapp:dashboard' %}" class="text-sm text-slate-700 hover:text-indigo-600">Dashboard</a>
+                        <a href="{% url 'coreapp:complaint_list' %}" class="text-sm text-slate-700 hover:text-indigo-600">Complaints</a>
+                        {% block nav %}{% endblock %}
+                    </nav>
+
+                    <div class="flex items-center gap-3">
+                        {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'account:sign-out' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50">Sign out</button>
+                        </form>
+                        <a href="{% url 'account:profile' %}" class="ml-2 text-sm text-slate-700 hover:text-indigo-600">Hi, {{ user.get_short_name|default:user.username }}</a>
+                        {% else %}
+                        <a href="{% url 'account:sign-in' %}" class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-indigo-600 text-white shadow hover:bg-indigo-700">Sign in</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main id="main-content" class="flex-grow">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="bg-white shadow-sm rounded-lg border border-slate-100 p-6">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+
+        <!-- Sticky Footer -->
+        <footer class="mt-auto bg-white/90 backdrop-blur-md border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="text-sm text-slate-600">© {{ now|date:"Y" }} Crime Reporting System. All rights reserved.
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#"
+                        class="text-sm text-slate-600 hover:text-indigo-600">Privacy</a>
+                    <a href="#"
+                        class="text-sm text-slate-600 hover:text-indigo-600">Terms</a>
+                    {% block footer %}{% endblock %}
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+
+</html>
