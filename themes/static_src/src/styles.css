@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/**
+  * A catch-all path to Django template files, JavaScript, and Python files
+  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
+  *
+  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
+  * the scope of this path.
+  */
+@source "../../../**/*.{html,py,js}";
+
+@layer base {
+  * {
+    @apply scroll-smooth box-border m-0 p-0;
+  }
+
+  body {
+    @apply flex flex-col w-screen min-h-screen font-sans bg-gray-100 text-gray-800;
+  }
+}
