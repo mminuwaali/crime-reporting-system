@@ -1,0 +1,121 @@
+{% extends 'coreapp.html' %}
+
+{% block title %}My Profile - Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">My Profile</h1>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-blue-800 text-white p-6">
+            <div class="flex items-center">
+                <div class="bg-white text-blue-800 rounded-full p-3 mr-4">
+                    <i class="fas fa-user text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold">{{ user.username }}</h2>
+                    <p class="text-blue-100">Member since {{ user.date_joined|date:"F d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                    {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- First Name -->
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            First Name
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Last Name -->
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Last Name
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex justify-between pt-4">
+                    <a href="{% url 'account:password_change' %}" class="text-blue-800 hover:text-blue-600 transition">
+                        <i class="fas fa-key mr-1"></i> Change Password
+                    </a>
+                    <button type="submit" class="bg-blue-800 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition">
+                        Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-800 rounded-full p-2 mr-3">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2 class="text-xl font-semibold">Account Security</h2>
+            </div>
+            <p class="text-gray-600 mb-4">Protect your account with a strong password and keep your contact information up to date.</p>
+            <a href="{% url 'account:password_change' %}" class="block w-full bg-gray-100 text-center py-2 rounded-md hover:bg-gray-200 transition">
+                Manage Security
+            </a>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-800 rounded-full p-2 mr-3">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h2 class="text-xl font-semibold">My Complaints</h2>
+            </div>
+            <p class="text-gray-600 mb-4">View and manage all your submitted complaints and track their progress.</p>
+            <a href="{% url 'coreapp:complaint_list' %}" class="block w-full bg-gray-100 text-center py-2 rounded-md hover:bg-gray-200 transition">
+                View Complaints
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add form styling
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
+        inputs.forEach(input => {
+            input.classList.add('w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring', 'focus:ring-blue-500', 'focus:ring-opacity-50');
+        });
+    });
+</script>
+{% endblock %}
